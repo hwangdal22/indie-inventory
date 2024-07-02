@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재고 목록</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Firebase 설정 코드 추가 -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "YAIzaSyDX0ZBiSt2qp8Q6TDMgvt_pofERgPpA_dc",
+            authDomain: "indie-inventory.firebaseapp.com",
+            projectId: "indie-inventory",
+            storageBucket: "indie-inventory.appspot.com",
+            messagingSenderId: "510795992497",
+            appId: "1:510795992497:web:544d12465e5678b1660190"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>재고 목록</h2>
+        <ul id="inventoryList"></ul>
+        <h2>상품 추가</h2>
+        <input type="text" id="productName" placeholder="품목 이름">
+        <input type="number" id="productQuantity" placeholder="재고 수량">
+        <button onclick="addProduct()">추가</button>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
