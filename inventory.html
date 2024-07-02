@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>재고 관리</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Firebase 설정 코드 추가 -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
@@ -21,26 +20,6 @@
         // Firebase 초기화
         firebase.initializeApp(firebaseConfig);
 
-        // 로그인 여부 확인
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                // 사용자 정보 가져오기
-                firebase.firestore().collection('users').doc(user.uid).get().then(doc => {
-                    if (doc.exists) {
-                        document.getElementById('bandName').textContent = doc.data().bandName + ' 님의 재고관리';
-                        document.getElementById('loginInfo').textContent = doc.data().bandName;
-                        loadInventory(user.uid);
-                    }
-                }).catch((error) => {
-                    console.error("Error getting document:", error);
-                });
-            } else {
-                // 로그인하지 않은 경우 로그인 페이지로 리디렉션
-                window.location.href = "index.html";
-            }
-        });
-
-        // 재고 목록 로드
         function loadInventory(uid) {
             var inventoryList = document.getElementById('inventoryList');
             inventoryList.innerHTML = "";
@@ -60,7 +39,22 @@
             });
         }
 
-        // 상품 추가
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                firebase.firestore().collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        document.getElementById('bandName').textContent = doc.data().bandName + ' 님의 재고관리';
+                        document.getElementById('loginInfo').textContent = doc.data().bandName;
+                        loadInventory(user.uid);
+                    }
+                }).catch((error) => {
+                    console.error("Error getting document:", error);
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
         function addSingleItem() {
             var productName = document.getElementById('singleItemName').value;
             var productQuantity = document.getElementById('singleItemQuantity').value;
@@ -76,13 +70,11 @@
                 uid: user.uid,
                 name: productName,
                 quantity: parseInt(productQuantity)
-            })
-            .then((docRef) => {
+            }).then((docRef) => {
                 alert("상품이 추가되었습니다!");
                 hideAddItemPopup();
                 loadInventory(user.uid);
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 console.error("Error adding document: ", error);
             });
         }
@@ -104,18 +96,15 @@
                 name: productName,
                 size: productSize,
                 quantity: parseInt(productQuantity)
-            })
-            .then((docRef) => {
+            }).then((docRef) => {
                 alert("상품이 추가되었습니다!");
                 hideAddItemPopup();
                 loadInventory(user.uid);
-            })
-            .catch((error) => {
+            }).catch((error) => {
                 console.error("Error adding document: ", error);
             });
         }
 
-        // 팝업 표시 및 숨기기
         function showAddItemPopup() {
             document.getElementById('addItemPopup').style.display = 'block';
         }
@@ -136,7 +125,6 @@
             document.getElementById('multipleSizeItemForm').classList.remove('hidden');
         }
 
-        // 로그아웃 기능
         function logout() {
             firebase.auth().signOut().then(() => {
                 window.location.href = "index.html";
@@ -156,7 +144,7 @@
         <ul id="inventoryList"></ul>
         <button class="add-btn" onclick="showAddItemPopup()">상품추가</button>
     </div>
-    
+
     <div id="addItemPopup" class="popup">
         <div class="popup-content">
             <h3>상품 추가</h3>
