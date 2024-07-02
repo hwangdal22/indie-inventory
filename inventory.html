@@ -74,7 +74,7 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document:", error);
+                console.error("Error adding document: ", error);
             });
         }
 
@@ -100,28 +100,29 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document:", error);
+                console.error("Error adding document: ", error);
             });
         }
 
         function showAddItemPopup() {
             document.getElementById('addItemPopup').style.display = 'block';
+            document.getElementById('addItemOptions').style.display = 'block';
+            document.getElementById('singleItemForm').style.display = 'none';
+            document.getElementById('multipleSizeItemForm').style.display = 'none';
         }
 
         function hideAddItemPopup() {
             document.getElementById('addItemPopup').style.display = 'none';
-            document.getElementById('singleItemForm').classList.add('hidden');
-            document.getElementById('multipleSizeItemForm').classList.add('hidden');
         }
 
         function showSingleItemForm() {
-            document.getElementById('singleItemForm').classList.remove('hidden');
-            document.getElementById('multipleSizeItemForm').classList.add('hidden');
+            document.getElementById('addItemOptions').style.display = 'none';
+            document.getElementById('singleItemForm').style.display = 'block';
         }
 
         function showMultipleSizeItemForm() {
-            document.getElementById('singleItemForm').classList.add('hidden');
-            document.getElementById('multipleSizeItemForm').classList.remove('hidden');
+            document.getElementById('addItemOptions').style.display = 'none';
+            document.getElementById('multipleSizeItemForm').style.display = 'block';
         }
 
         function logout() {
@@ -144,6 +145,11 @@
 
     <div id="addItemPopup" class="popup">
         <div class="popup-content">
+            <div id="addItemOptions">
+                <button onclick="showSingleItemForm()">단일 품목</button>
+                <button onclick="showMultipleSizeItemForm()">사이즈가 있는 품목 (의류)</button>
+                <button onclick="hideAddItemPopup()">닫기</button>
+            </div>
             <div id="singleItemForm" class="form hidden">
                 <input type="text" id="singleItemName" placeholder="품목 이름">
                 <input type="number" id="singleItemQuantity" placeholder="재고 수량">
@@ -205,10 +211,12 @@
   .popup-content {
       display: flex;
       flex-direction: column;
+      align-items: center;
   }
 
   .form {
       margin-top: 20px;
+      display: none;
   }
 
   .form.hidden {
