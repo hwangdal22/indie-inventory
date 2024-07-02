@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>재고 목록</title>
+    <title>재고 관리</title>
     <link rel="stylesheet" href="style.css">
     <!-- Firebase 설정 코드 추가 -->
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -18,18 +18,80 @@
             messagingSenderId: "510795992497",
             appId: "1:510795992497:web:544d12465e5678b1660190"
         };
+        // Firebase 초기화
         firebase.initializeApp(firebaseConfig);
     </script>
 </head>
 <body>
     <div class="container">
-        <h2>재고 목록</h2>
+        <h2 id="bandName">[밴드이름] 님의 재고관리</h2>
         <ul id="inventoryList"></ul>
-        <h2>상품 추가</h2>
-        <input type="text" id="productName" placeholder="품목 이름">
-        <input type="number" id="productQuantity" placeholder="재고 수량">
-        <button onclick="addProduct()">추가</button>
+        <button class="floating-btn" onclick="showAddItemPopup()">상품추가</button>
     </div>
+    
+    <div id="addItemPopup" class="popup">
+        <div class="popup-content">
+            <h3>상품 추가</h3>
+            <button onclick="showSingleItemForm()">단일 품목</button>
+            <button onclick="showMultipleSizeItemForm()">사이즈 다양한 품목(의류)</button>
+            <div id="singleItemForm" class="form hidden">
+                <input type="text" id="singleItemName" placeholder="품목 이름">
+                <input type="number" id="singleItemQuantity" placeholder="재고 수량">
+                <button onclick="addSingleItem()">추가</button>
+            </div>
+            <div id="multipleSizeItemForm" class="form hidden">
+                <input type="text" id="multipleItemName" placeholder="품목 이름">
+                <input type="text" id="multipleItemSize" placeholder="품목 사이즈">
+                <input type="number" id="multipleItemQuantity" placeholder="재고 수량">
+                <button onclick="addMultipleSizeItem()">추가</button>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
+
+<style>
+  .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      cursor: pointer;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+  }
+
+  .popup-content {
+      display: flex;
+      flex-direction: column;
+  }
+
+  .form {
+      margin-top: 20px;
+  }
+
+  .form.hidden {
+      display: none;
+  }
+</style>
