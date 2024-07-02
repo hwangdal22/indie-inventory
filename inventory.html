@@ -42,7 +42,7 @@
                     var item = inventory[name];
                     var itemHTML = '<li><b>' + name + '</b>';
                     item.forEach(product => {
-                        itemHTML += '<div>' + (product.size ? product.size + ': ' : '') + product.quantity + '</div>';
+                        itemHTML += '<div class="product-info">' + (product.size ? product.size + ': ' : '') + product.quantity + '</div>';
                         itemHTML += '<div class="update-buttons">';
                         itemHTML += '<button class="add" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity + 1) + ')">+1</button>';
                         itemHTML += '<button class="subtract" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity - 1) + ')">-1</button>';
@@ -245,6 +245,8 @@
       padding: 10px;
       background-color: #f8f9fa;
       border-bottom: 1px solid #e0e0e0;
+      width: 100%;
+      box-sizing: border-box;
   }
 
   .container {
@@ -252,6 +254,7 @@
       padding: 20px;
       text-align: center;
       width: 100%;
+      box-sizing: border-box;
   }
 
   .add-btn {
@@ -302,6 +305,8 @@
       padding: 10px;
       background-color: #f8f9fa;
       border-top: 1px solid #e0e0e0;
+      width: 100%;
+      box-sizing: border-box;
   }
 
   .footer button {
@@ -347,5 +352,26 @@
 
   b {
       font-size: 1.2em;
+      text-align: left;
+      display: block;
+  }
+
+  .product-info {
+      text-align: left;
+  }
+
+  ul {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+  }
+
+  li {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
   }
 </style>
