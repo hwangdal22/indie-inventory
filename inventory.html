@@ -45,7 +45,12 @@
             firebase.firestore().collection("inventory").where("uid", "==", uid).get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     var product = doc.data();
-                    inventoryList.innerHTML += "<li>" + product.name + ": " + product.quantity + "</li>";
+                    var productDetails = product.name;
+                    if (product.size) {
+                        productDetails += " (" + product.size + ")";
+                    }
+                    productDetails += ": " + product.quantity;
+                    inventoryList.innerHTML += "<li>" + productDetails + "</li>";
                 });
             });
         }
@@ -54,6 +59,11 @@
         function addSingleItem() {
             var productName = document.getElementById('singleItemName').value;
             var productQuantity = document.getElementById('singleItemQuantity').value;
+
+            if (productName === "" || productQuantity === "") {
+                alert("모든 필드를 입력해주세요.");
+                return;
+            }
 
             var user = firebase.auth().currentUser;
 
@@ -64,6 +74,7 @@
             })
             .then((docRef) => {
                 alert("상품이 추가되었습니다!");
+                hideAddItemPopup();
                 loadInventory(user.uid);
             })
             .catch((error) => {
@@ -76,6 +87,11 @@
             var productSize = document.getElementById('multipleItemSize').value;
             var productQuantity = document.getElementById('multipleItemQuantity').value;
 
+            if (productName === "" || productSize === "" || productQuantity === "") {
+                alert("모든 필드를 입력해주세요.");
+                return;
+            }
+
             var user = firebase.auth().currentUser;
 
             firebase.firestore().collection("inventory").add({
@@ -86,6 +102,7 @@
             })
             .then((docRef) => {
                 alert("상품이 추가되었습니다!");
+                hideAddItemPopup();
                 loadInventory(user.uid);
             })
             .catch((error) => {
@@ -100,6 +117,8 @@
 
         function hideAddItemPopup() {
             document.getElementById('addItemPopup').style.display = 'none';
+            document.getElementById('singleItemForm').classList.add('hidden');
+            document.getElementById('multipleSizeItemForm').classList.add('hidden');
         }
 
         function showSingleItemForm() {
