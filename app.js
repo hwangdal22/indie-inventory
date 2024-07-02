@@ -151,11 +151,19 @@ function showMultipleSizeItemForm() {
     document.getElementById('multipleSizeItemForm').classList.remove('hidden');
 }
 
+// 로그아웃 기능
+function logout() {
+    firebase.auth().signOut().then(() => {
+        window.location.href = "index.html";
+    }).catch((error) => {
+        console.error("Error signing out:", error);
+    });
+}
+
 window.onload = function() {
-    if (document.getElementById('inventoryList')) {
-        var user = firebase.auth().currentUser;
+    firebase.auth().onAuthStateChanged(user => {
         if (user) {
             loadInventory(user.uid);
         }
-    }
+    });
 }
