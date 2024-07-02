@@ -56,18 +56,22 @@ function signUp() {
 }
 
 // 재고 목록 로드
-function loadInventory() {
-    var bandName = localStorage.getItem('bandName');
-    document.getElementById('bandName').textContent = bandName + ' 님의 재고관리';
-
+function loadInventory(uid) {
     var inventoryList = document.getElementById('inventoryList');
     inventoryList.innerHTML = "";
 
-    firebase.firestore().collection("inventory").get().then((querySnapshot) => {
+    firebase.firestore().collection("inventory").where("uid", "==", uid).get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             var product = doc.data();
-            inventoryList.innerHTML += "<li>" + product.name + ": " + product.quantity + "</li>";
+            var productDetails = product.name;
+            if (product.size) {
+                productDetails += " (" + product.size + ")";
+            }
+            productDetails += ": " + product.quantity;
+            inventoryList.innerHTML += "<li>" + productDetails + "</li>";
         });
+    }).catch((error) => {
+        console.error("Error getting documents:", error);
     });
 }
 
@@ -91,7 +95,7 @@ function addSingleItem() {
     .then((docRef) => {
         alert("상품이 추가되었습니다!");
         hideAddItemPopup();
-        loadInventory();
+        loadInventory(user.uid);
     })
     .catch((error) => {
         console.error("Error adding document: ", error);
@@ -119,7 +123,7 @@ function addMultipleSizeItem() {
     .then((docRef) => {
         alert("상품이 추가되었습니다!");
         hideAddItemPopup();
-        loadInventory();
+        loadInventory(user.uid);
     })
     .catch((error) => {
         console.error("Error adding document: ", error);
