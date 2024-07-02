@@ -8,7 +8,6 @@ function login() {
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             var user = userCredential.user;
-            // 로그인 성공 시 밴드 이름을 불러와서 localStorage에 저장
             firebase.firestore().collection('users').doc(user.uid).get()
                 .then(doc => {
                     if (doc.exists) {
@@ -38,7 +37,6 @@ function signUp() {
 
     firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            // 회원가입 성공
             var user = userCredential.user;
             return firebase.firestore().collection('users').doc(user.uid).set({
                 email: email,
@@ -151,7 +149,6 @@ function showMultipleSizeItemForm() {
     document.getElementById('multipleSizeItemForm').classList.remove('hidden');
 }
 
-// 로그아웃 기능
 function logout() {
     firebase.auth().signOut().then(() => {
         window.location.href = "index.html";
