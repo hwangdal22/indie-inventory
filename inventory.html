@@ -44,7 +44,6 @@
                 firebase.firestore().collection('users').doc(user.uid).get().then(doc => {
                     if (doc.exists) {
                         document.getElementById('bandName').textContent = doc.data().bandName + ' 님의 재고관리';
-                        document.getElementById('loginInfo').textContent = doc.data().bandName;
                         loadInventory(user.uid);
                     }
                 }).catch((error) => {
@@ -75,7 +74,7 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document: ", error);
+                console.error("Error adding document:", error);
             });
         }
 
@@ -101,7 +100,7 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document: ", error);
+                console.error("Error adding document:", error);
             });
         }
 
@@ -136,33 +135,32 @@
 </head>
 <body>
     <div class="header">
-        <span id="loginInfo"></span>
-        <button onclick="logout()">로그아웃</button>
+        <h2 id="bandName"></h2>
     </div>
     <div class="container">
-        <h2 id="bandName">[밴드이름] 님의 재고관리</h2>
         <ul id="inventoryList"></ul>
         <button class="add-btn" onclick="showAddItemPopup()">상품추가</button>
     </div>
 
     <div id="addItemPopup" class="popup">
         <div class="popup-content">
-            <h3>상품 추가</h3>
-            <button onclick="showSingleItemForm()">단일 품목</button>
-            <button onclick="showMultipleSizeItemForm()">사이즈 다양한 품목(의류)</button>
             <div id="singleItemForm" class="form hidden">
                 <input type="text" id="singleItemName" placeholder="품목 이름">
                 <input type="number" id="singleItemQuantity" placeholder="재고 수량">
                 <button onclick="addSingleItem()">추가</button>
+                <button onclick="hideAddItemPopup()">닫기</button>
             </div>
             <div id="multipleSizeItemForm" class="form hidden">
                 <input type="text" id="multipleItemName" placeholder="품목 이름">
                 <input type="text" id="multipleItemSize" placeholder="품목 사이즈">
                 <input type="number" id="multipleItemQuantity" placeholder="재고 수량">
                 <button onclick="addMultipleSizeItem()">추가</button>
+                <button onclick="hideAddItemPopup()">닫기</button>
             </div>
-            <button onclick="hideAddItemPopup()">닫기</button>
         </div>
+    </div>
+    <div class="footer">
+        <button onclick="logout()">로그아웃</button>
     </div>
 </body>
 </html>
@@ -215,5 +213,22 @@
 
   .form.hidden {
       display: none;
+  }
+
+  .footer {
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      background-color: #f8f9fa;
+  }
+
+  .footer button {
+      font-size: 12px;
+      background: none;
+      border: none;
+      color: blue;
+      cursor: pointer;
   }
 </style>
