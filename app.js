@@ -59,15 +59,33 @@ function loadInventory(uid) {
     inventoryList.innerHTML = "";
 
     firebase.firestore().collection("inventory").where("uid", "==", uid).get().then((querySnapshot) => {
+        var inventory = {};
         querySnapshot.forEach((doc) => {
             var product = doc.data();
-            var productDetails = product.name;
-            if (product.size) {
-                productDetails += " (" + product.size + ")";
+            if (!inventory[product.name]) {
+                inventory[product.name] = [];
             }
-            productDetails += ": " + product.quantity;
-            inventoryList.innerHTML += "<li>" + productDetails + "</li>";
+            inventory[product.name].push({
+                id: doc.id,
+                size: product.size || '',
+                quantity: product.quantity
+            });
         });
+
+        for (var name in inventory) {
+            var item = inventory[name];
+            var itemHTML = '<li><b>' + name + '</b>';
+            item.forEach(product => {
+                itemHTML += '<div>' + (product.size ? product.size + ': ' : '') + product.quantity + '</div>';
+                itemHTML += '<div class="update-buttons">';
+                itemHTML += '<button class="add" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity + 1) + ')">+1</button>';
+                itemHTML += '<button class="subtract" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity - 1) + ')">-1</button>';
+                itemHTML += '<button onclick="promptUpdateQuantity(\'' + product.id + '\')">재고수정</button>';
+                itemHTML += '</div>';
+            });
+            itemHTML += '</li>';
+            inventoryList.innerHTML += itemHTML;
+        }
     }).catch((error) => {
         console.error("Error getting documents:", error);
     });
@@ -94,14 +112,14 @@ function addSingleItem() {
         hideAddItemPopup();
         loadInventory(user.uid);
     }).catch((error) => {
-        console.error("Error adding document: ", error);
+        console.error("Error adding document:", error);
     });
 }
 
-function addMultipleSizeItem() {
-    var productName = document.getElementById('multipleItemName').value;
-    var productSize = document.getElementById('multipleItemSize').value;
-    var productQuantity = document.getElementById('multipleItemQuantity').value;
+function addMultipleSizeItem(isClothing) {
+    var productName = document.getElementById(isClothing ? 'clothingItemName' : 'otherItemName').value;
+    var productSize = document.getElementById(isClothing ? 'clothingItemSize' : 'otherItemSize').value;
+    var productQuantity = document.getElementById(isClothing ? 'clothingItemQuantity' : 'otherItemQuantity').value;
 
     if (productName === "" || productSize === "" || productQuantity === "") {
         alert("모든 필드를 입력해주세요.");
@@ -120,28 +138,52 @@ function addMultipleSizeItem() {
         hideAddItemPopup();
         loadInventory(user.uid);
     }).catch((error) => {
-        console.error("Error adding document: ", error);
+        console.error("Error adding document:", error);
     });
+}
+
+function updateQuantity(docId, newQuantity) {
+    firebase.firestore().collection("inventory").doc(docId).update({
+        quantity: newQuantity
+    }).then(() => {
+        firebase.auth().currentUser && loadInventory(firebase.auth().currentUser.uid);
+    }).catch((error) => {
+        console.error("Error updating document:", error);
+    });
+}
+
+function promptUpdateQuantity(docId) {
+    var newQuantity = prompt("새로운 재고 수량을 입력하세요:");
+    if (newQuantity !== null) {
+        updateQuantity(docId, parseInt(newQuantity));
+    }
 }
 
 function showAddItemPopup() {
     document.getElementById('addItemPopup').style.display = 'block';
+    document.getElementById('addItemOptions').style.display = 'block';
+    document.getElementById('singleItemForm').style.display = 'none';
+    document.getElementById('clothingItemForm').style.display = 'none';
+    document.getElementById('otherItemForm').style.display = 'none';
 }
 
 function hideAddItemPopup() {
     document.getElementById('addItemPopup').style.display = 'none';
-    document.getElementById('singleItemForm').classList.add('hidden');
-    document.getElementById('multipleSizeItemForm').classList.add('hidden');
 }
 
 function showSingleItemForm() {
-    document.getElementById('singleItemForm').classList.remove('hidden');
-    document.getElementById('multipleSizeItemForm').classList.add('hidden');
+    document.getElementById('addItemOptions').style.display = 'none';
+    document.getElementById('singleItemForm').style.display = 'block';
 }
 
-function showMultipleSizeItemForm() {
-    document.getElementById('singleItemForm').classList.add('hidden');
-    document.getElementById('multipleSizeItemForm').classList.remove('hidden');
+function showClothingItemForm() {
+    document.getElementById('addItemOptions').style.display = 'none';
+    document.getElementById('clothingItemForm').style.display = 'block';
+}
+
+function showOtherItemForm() {
+    document.getElementById('addItemOptions').style.display = 'none';
+    document.getElementById('otherItemForm').style.display = 'block';
 }
 
 function logout() {
