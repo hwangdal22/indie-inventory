@@ -30,6 +30,8 @@
                         document.getElementById('bandName').textContent = doc.data().bandName + ' 님의 재고관리';
                         loadInventory(user.uid);
                     }
+                }).catch((error) => {
+                    console.error("Error getting document:", error);
                 });
             } else {
                 // 로그인하지 않은 경우 로그인 페이지로 리디렉션
@@ -52,6 +54,8 @@
                     productDetails += ": " + product.quantity;
                     inventoryList.innerHTML += "<li>" + productDetails + "</li>";
                 });
+            }).catch((error) => {
+                console.error("Error getting documents:", error);
             });
         }
 
@@ -78,7 +82,7 @@
                 loadInventory(user.uid);
             })
             .catch((error) => {
-                console.error("Error adding document: ", error);
+                console.error("Error adding document:", error);
             });
         }
 
@@ -106,7 +110,7 @@
                 loadInventory(user.uid);
             })
             .catch((error) => {
-                console.error("Error adding document: ", error);
+                console.error("Error adding document:", error);
             });
         }
 
