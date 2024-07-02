@@ -20,13 +20,104 @@
         };
         // Firebase 초기화
         firebase.initializeApp(firebaseConfig);
+
+        // 로그인 여부 확인
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // 사용자 정보 가져오기
+                firebase.firestore().collection('users').doc(user.uid).get().then(doc => {
+                    if (doc.exists) {
+                        document.getElementById('bandName').textContent = doc.data().bandName + ' 님의 재고관리';
+                        loadInventory(user.uid);
+                    }
+                });
+            } else {
+                // 로그인하지 않은 경우 로그인 페이지로 리디렉션
+                window.location.href = "index.html";
+            }
+        });
+
+        // 재고 목록 로드
+        function loadInventory(uid) {
+            var inventoryList = document.getElementById('inventoryList');
+            inventoryList.innerHTML = "";
+
+            firebase.firestore().collection("inventory").where("uid", "==", uid).get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    var product = doc.data();
+                    inventoryList.innerHTML += "<li>" + product.name + ": " + product.quantity + "</li>";
+                });
+            });
+        }
+
+        // 상품 추가
+        function addSingleItem() {
+            var productName = document.getElementById('singleItemName').value;
+            var productQuantity = document.getElementById('singleItemQuantity').value;
+
+            var user = firebase.auth().currentUser;
+
+            firebase.firestore().collection("inventory").add({
+                uid: user.uid,
+                name: productName,
+                quantity: parseInt(productQuantity)
+            })
+            .then((docRef) => {
+                alert("상품이 추가되었습니다!");
+                loadInventory(user.uid);
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+            });
+        }
+
+        function addMultipleSizeItem() {
+            var productName = document.getElementById('multipleItemName').value;
+            var productSize = document.getElementById('multipleItemSize').value;
+            var productQuantity = document.getElementById('multipleItemQuantity').value;
+
+            var user = firebase.auth().currentUser;
+
+            firebase.firestore().collection("inventory").add({
+                uid: user.uid,
+                name: productName,
+                size: productSize,
+                quantity: parseInt(productQuantity)
+            })
+            .then((docRef) => {
+                alert("상품이 추가되었습니다!");
+                loadInventory(user.uid);
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+            });
+        }
+
+        // 팝업 표시 및 숨기기
+        function showAddItemPopup() {
+            document.getElementById('addItemPopup').style.display = 'block';
+        }
+
+        function hideAddItemPopup() {
+            document.getElementById('addItemPopup').style.display = 'none';
+        }
+
+        function showSingleItemForm() {
+            document.getElementById('singleItemForm').classList.remove('hidden');
+            document.getElementById('multipleSizeItemForm').classList.add('hidden');
+        }
+
+        function showMultipleSizeItemForm() {
+            document.getElementById('singleItemForm').classList.add('hidden');
+            document.getElementById('multipleSizeItemForm').classList.remove('hidden');
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <h2 id="bandName">[밴드이름] 님의 재고관리</h2>
         <ul id="inventoryList"></ul>
-        <button class="floating-btn" onclick="showAddItemPopup()">상품추가</button>
+        <button class="add-btn" onclick="showAddItemPopup()">상품추가</button>
     </div>
     
     <div id="addItemPopup" class="popup">
@@ -45,27 +136,25 @@
                 <input type="number" id="multipleItemQuantity" placeholder="재고 수량">
                 <button onclick="addMultipleSizeItem()">추가</button>
             </div>
+            <button onclick="hideAddItemPopup()">닫기</button>
         </div>
     </div>
-
-    <script src="app.js"></script>
 </body>
 </html>
 
 <style>
-  .floating-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+  .add-btn {
+      position: relative;
+      display: block;
+      margin: 20px auto;
       background-color: #007bff;
       color: white;
       border: none;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 20px;
+      border-radius: 5px;
+      width: 100px;
+      height: 40px;
+      font-size: 16px;
       cursor: pointer;
-      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
   }
 
   .popup {
