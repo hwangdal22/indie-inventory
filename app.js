@@ -76,12 +76,21 @@ function addSingleItem() {
     var productName = document.getElementById('singleItemName').value;
     var productQuantity = document.getElementById('singleItemQuantity').value;
 
+    if (productName === "" || productQuantity === "") {
+        alert("모든 필드를 입력해주세요.");
+        return;
+    }
+
+    var user = firebase.auth().currentUser;
+
     firebase.firestore().collection("inventory").add({
+        uid: user.uid,
         name: productName,
         quantity: parseInt(productQuantity)
     })
     .then((docRef) => {
         alert("상품이 추가되었습니다!");
+        hideAddItemPopup();
         loadInventory();
     })
     .catch((error) => {
@@ -94,13 +103,22 @@ function addMultipleSizeItem() {
     var productSize = document.getElementById('multipleItemSize').value;
     var productQuantity = document.getElementById('multipleItemQuantity').value;
 
+    if (productName === "" || productSize === "" || productQuantity === "") {
+        alert("모든 필드를 입력해주세요.");
+        return;
+    }
+
+    var user = firebase.auth().currentUser;
+
     firebase.firestore().collection("inventory").add({
+        uid: user.uid,
         name: productName,
         size: productSize,
         quantity: parseInt(productQuantity)
     })
     .then((docRef) => {
         alert("상품이 추가되었습니다!");
+        hideAddItemPopup();
         loadInventory();
     })
     .catch((error) => {
@@ -115,6 +133,8 @@ function showAddItemPopup() {
 
 function hideAddItemPopup() {
     document.getElementById('addItemPopup').style.display = 'none';
+    document.getElementById('singleItemForm').classList.add('hidden');
+    document.getElementById('multipleSizeItemForm').classList.add('hidden');
 }
 
 function showSingleItemForm() {
@@ -129,6 +149,9 @@ function showMultipleSizeItemForm() {
 
 window.onload = function() {
     if (document.getElementById('inventoryList')) {
-        loadInventory();
+        var user = firebase.auth().currentUser;
+        if (user) {
+            loadInventory(user.uid);
+        }
     }
 }
