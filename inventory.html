@@ -10,12 +10,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script>
         var firebaseConfig = {
-            apiKey: "AIzaSyDX0ZBiSt2qp8Q6TDMgvt_pofERgPpA_dc",
-            authDomain: "indie-inventory.firebaseapp.com",
-            projectId: "indie-inventory",
-            storageBucket: "indie-inventory.appspot.com",
-            messagingSenderId: "510795992497",
-            appId: "1:510795992497:web:544d12465e5678b1660190"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
         // Firebase 초기화
         firebase.initializeApp(firebaseConfig);
@@ -43,9 +43,11 @@
                     var itemHTML = '<li><b>' + name + '</b>';
                     item.forEach(product => {
                         itemHTML += '<div>' + (product.size ? product.size + ': ' : '') + product.quantity + '</div>';
-                        itemHTML += '<button onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity + 1) + ')">+1</button>';
-                        itemHTML += '<button onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity - 1) + ')">-1</button>';
-                        itemHTML += '<button onclick="promptUpdateQuantity(\'' + product.id + '\')">재고수정</button>';
+                        itemHTML += '<div class="update-buttons">';
+                        itemHTML += '<button class="add" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity + 1) + ')">+1</button>';
+                        itemHTML += '<button class="subtract" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity - 1) + ')">-1</button>';
+                        itemHTML += '<button class="update" onclick="promptUpdateQuantity(\'' + product.id + '\')">재고수정</button>';
+                        itemHTML += '</div>';
                     });
                     itemHTML += '</li>';
                     inventoryList.innerHTML += itemHTML;
@@ -90,7 +92,7 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document:", error);
+                console.error("Error adding document: ", error);
             });
         }
 
@@ -116,7 +118,7 @@
                 hideAddItemPopup();
                 loadInventory(user.uid);
             }).catch((error) => {
-                console.error("Error adding document:", error);
+                console.error("Error adding document: ", error);
             });
         }
 
@@ -228,18 +230,32 @@
 </html>
 
 <style>
+  body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+  }
+
   .header {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       padding: 10px;
       background-color: #f8f9fa;
       border-bottom: 1px solid #e0e0e0;
   }
 
+  .container {
+      flex: 1;
+      padding: 20px;
+      text-align: center;
+  }
+
   .add-btn {
-      position: relative;
-      display: block;
-      margin: 20px auto;
+      display: inline-block;
+      margin-top: 20px;
       background-color: #007bff;
       color: white;
       border: none;
@@ -261,7 +277,8 @@
       z-index: 1000;
       padding: 20px;
       border-radius: 8px;
-      width: 300px;
+      width: 90%;
+      max-width: 300px;
   }
 
   .popup-content {
@@ -282,10 +299,8 @@
   .footer {
       text-align: center;
       padding: 10px;
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
       background-color: #f8f9fa;
+      border-top: 1px solid #e0e0e0;
   }
 
   .footer button {
@@ -302,7 +317,9 @@
 
   .update-buttons {
       display: flex;
+      justify-content: center;
       gap: 10px;
+      margin-top: 10px;
   }
 
   .update-buttons button {
@@ -319,5 +336,15 @@
   .update-buttons .subtract {
       background-color: #ff4d4d;
       color: white;
+  }
+
+  .update-buttons .update {
+      background-color: #f8f9fa;
+      color: black;
+      border: 1px solid #ccc;
+  }
+
+  b {
+      font-size: 1.2em;
   }
 </style>
