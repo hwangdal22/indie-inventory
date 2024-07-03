@@ -46,7 +46,7 @@
                         itemHTML += '<div class="update-buttons">';
                         itemHTML += '<button class="add" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity + 1) + ')">+1</button>';
                         itemHTML += '<button class="subtract" onclick="updateQuantity(\'' + product.id + '\', ' + (product.quantity - 1) + ')">-1</button>';
-                        itemHTML += '<button class="update" onclick="promptUpdateQuantity(\'' + product.id + '\')">재고수정</button>';
+                        itemHTML += '<button class="update" onclick="showUpdatePopup(\'' + product.id + '\', ' + product.quantity + ')">재고수정</button>';
                         itemHTML += '</div>';
                     });
                     itemHTML += '</li>';
@@ -159,14 +159,22 @@
             });
         }
 
-        function promptUpdateQuantity(docId) {
-            var newQuantity = prompt("새로운 재고 수량을 입력하세요:");
-            if (newQuantity !== null) {
-                updateQuantity(docId, parseInt(newQuantity));
-            }
-            if (confirm("항목을 삭제하시겠습니까?")) {
+        function showUpdatePopup(docId, currentQuantity) {
+            document.getElementById('updateItemPopup').style.display = 'block';
+            document.getElementById('updateItemQuantity').value = currentQuantity;
+            document.getElementById('updateConfirm').onclick = function() {
+                var newQuantity = parseInt(document.getElementById('updateItemQuantity').value);
+                updateQuantity(docId, newQuantity);
+                hideUpdatePopup();
+            };
+            document.getElementById('deleteConfirm').onclick = function() {
                 deleteItem(docId);
-            }
+                hideUpdatePopup();
+            };
+        }
+
+        function hideUpdatePopup() {
+            document.getElementById('updateItemPopup').style.display = 'none';
         }
 
         function deleteItem(docId) {
@@ -234,6 +242,16 @@
             </div>
         </div>
     </div>
+
+    <div id="updateItemPopup" class="popup">
+        <div class="popup-content">
+            <input type="number" id="updateItemQuantity" placeholder="재고 수량">
+            <button id="updateConfirm">확인</button>
+            <button onclick="hideUpdatePopup()">취소</button>
+            <button id="deleteConfirm" class="delete">항목삭제</button>
+        </div>
+    </div>
+
     <div class="footer">
         <button onclick="logout()">로그아웃</button>
     </div>
