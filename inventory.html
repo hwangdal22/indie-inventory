@@ -164,6 +164,17 @@
             if (newQuantity !== null) {
                 updateQuantity(docId, parseInt(newQuantity));
             }
+            if (confirm("항목을 삭제하시겠습니까?")) {
+                deleteItem(docId);
+            }
+        }
+
+        function deleteItem(docId) {
+            firebase.firestore().collection("inventory").doc(docId).delete().then(() => {
+                firebase.auth().currentUser && loadInventory(firebase.auth().currentUser.uid);
+            }).catch((error) => {
+                console.error("Error deleting document:", error);
+            });
         }
 
         function logout() {
@@ -348,6 +359,11 @@
       background-color: #f8f9fa;
       color: black;
       border: 1px solid #ccc;
+  }
+
+  .update-buttons .delete {
+      background-color: #d9534f;
+      color: white;
   }
 
   b {
