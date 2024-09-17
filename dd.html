@@ -3,143 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTCUSDT Real-Time Chart</title>
-    <script src="https://unpkg.com/lightweight-charts@3.7.1/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Lightweight Charts Example</title>
+    <!-- Lightweight Charts CDN -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        #chart-container {
+        #chart {
             width: 100%;
             height: 500px;
-            position: relative;
-        }
-        #volume-chart-container {
-            width: 100%;
-            height: 300px;
-            position: relative;
-        }
-        .status {
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .status.db {
-            color: green;
-        }
-        .status.db.error {
-            color: red;
-        }
-        .status.chart {
-            color: green;
-        }
-        .status.chart.error {
-            color: red;
         }
     </style>
 </head>
 <body>
-    <h1>BTCUSDT Real-Time Chart</h1>
+    <h1>Lightweight Charts Example</h1>
+    <div id="chart"></div>
+    
+    <script>
+        // 차트가 로드된 후 실행되는 스크립트
+        const chartContainer = document.getElementById('chart');
 
-    <div class="status db" id="db-status">DB 읽음</div>
-    <div class="status chart" id="chart-status">차트 로드되었음</div>
-
-    <!-- 캔들스틱 차트 -->
-    <div id="chart-container"></div>
-
-    <!-- 거래량 차트 -->
-    <div id="volume-chart-container"></div>
-
-    <script type="text/javascript">
-        // 차트 초기화
-        var chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
-            width: window.innerWidth,
+        // 차트 생성
+        const chart = LightweightCharts.createChart(chartContainer, {
+            width: chartContainer.clientWidth,
             height: 500,
-            crossHair: {
-                mode: LightweightCharts.CrossHairMode.Normal
-            }
         });
 
-        var candleSeries = chart.addCandlestickSeries({
-            upColor: 'green',
-            borderUpColor: 'green',
-            wickUpColor: 'green',
-            downColor: 'red',
-            borderDownColor: 'red',
-            wickDownColor: 'red'
+        // 라인 차트 추가
+        const lineSeries = chart.addLineSeries({
+            color: 'blue',
+            lineWidth: 2,
         });
 
-        var volumeChart = LightweightCharts.createChart(document.getElementById('volume-chart-container'), {
-            width: window.innerWidth,
-            height: 300
-        });
+        // 예시 데이터
+        const data = [
+            { time: '2024-09-18', value: 100 },
+            { time: '2024-09-19', value: 105 },
+            { time: '2024-09-20', value: 102 },
+            { time: '2024-09-21', value: 110 },
+            { time: '2024-09-22', value: 108 },
+        ];
 
-        var buyVolumeSeries = volumeChart.addBarSeries({ color: 'blue' });
-        var sellVolumeSeries = volumeChart.addBarSeries({ color: 'red' });
-
-        // 데이터 업데이트 함수
-        function updateCharts() {
-            $.ajax({
-                url: '/data',
-                type: 'GET',
-                success: function(response) {
-                    var timestamps = response.timestamps.map(ts => new Date(ts).getTime() / 1000); // Unix timestamp
-                    var ohlc = response.open_prices.map((_, i) => ({
-                        time: timestamps[i],
-                        open: response.open_prices[i],
-                        high: response.high_prices[i],
-                        low: response.low_prices[i],
-                        close: response.close_prices[i]
-                    }));
-
-                    candleSeries.setData(ohlc);
-
-                    var buyVolumes = response.buy_volumes.map((volume, i) => ({
-                        time: timestamps[i],
-                        value: volume
-                    }));
-                    
-                    var sellVolumes = response.sell_volumes.map((volume, i) => ({
-                        time: timestamps[i],
-                        value: -volume
-                    }));
-
-                    buyVolumeSeries.setData(buyVolumes);
-                    sellVolumeSeries.setData(sellVolumes);
-
-                    // 차트 로드 상태 업데이트
-                    $('#chart-status').text('차트 로드되었음').removeClass('error').addClass('chart');
-                },
-                error: function(err) {
-                    console.error('Failed to fetch data:', err);
-
-                    // 차트 로드 상태 업데이트
-                    $('#chart-status').text('차트 로드안됨').removeClass('chart').addClass('error');
-                }
-            });
-        }
-
-        // 데이터베이스 상태 업데이트
-        function checkDbConnection() {
-            $.ajax({
-                url: '/data',
-                type: 'GET',
-                success: function(response) {
-                    $('#db-status').text('DB 읽음').removeClass('error').addClass('db');
-                },
-                error: function(err) {
-                    console.error('Failed to fetch data:', err);
-
-                    $('#db-status').text('못 읽음').removeClass('db').addClass('error');
-                }
-            });
-        }
-
-        // 일정 간격으로 차트 업데이트
-        setInterval(updateCharts, 5000); // 5초마다 데이터 갱신
-
-        // 페이지 로드 시 DB 상태 확인
-        $(document).ready(function() {
-            checkDbConnection();
-            updateCharts(); // 페이지 로드 시 차트 업데이트
-        });
+        lineSeries.setData(data);
     </script>
 </body>
 </html>
