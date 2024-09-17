@@ -15,19 +15,15 @@
     
     <!-- 바 차트 (Buy/Sell Count & Volume) -->
     <div id="bar-chart" style="width:100%; height:500px;"></div>
- 
+
     <script type="text/javascript">
         // 캔들스틱 차트를 초기화
         var layoutCandlestick = {
             title: 'BTCUSDT Real-Time Candlestick Chart',
-            xaxis: {
-                title: 'Time'
-            },
-            yaxis: {
-                title: 'Price'
-            }
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Price' }
         };
- 
+
         var candlestickData = [{
             x: [],  // timestamps
             close: [],  // 종가
@@ -38,54 +34,50 @@
             xaxis: 'x',
             yaxis: 'y'
         }];
- 
+
         Plotly.newPlot('candlestick-chart', candlestickData, layoutCandlestick);
- 
+
         // 바 차트를 초기화 (Buy/Sell Count & Volume)
         var layoutBar = {
             title: 'Buy/Sell Count & Volume',
             barmode: 'overlay',
-            xaxis: {
-                title: 'Time'
-            },
-            yaxis: {
-                title: 'Count/Volume'
-            }
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Count/Volume' }
         };
- 
+
         var barData = [
             {
                 x: [],  // timestamps
                 y: [],  // buy count (positive)
                 name: 'Buy Count',
                 type: 'bar',
-                marker: {color: 'green'}
+                marker: { color: 'green' }
             },
             {
                 x: [],  // timestamps
                 y: [],  // sell count (negative)
                 name: 'Sell Count',
                 type: 'bar',
-                marker: {color: 'red'}
+                marker: { color: 'red' }
             },
             {
                 x: [],  // timestamps
                 y: [],  // buy volume (positive)
                 name: 'Buy Volume',
                 type: 'bar',
-                marker: {color: 'blue'}
+                marker: { color: 'blue' }
             },
             {
                 x: [],  // timestamps
                 y: [],  // sell volume (negative)
                 name: 'Sell Volume',
                 type: 'bar',
-                marker: {color: 'orange'}
+                marker: { color: 'orange' }
             }
         ];
- 
+
         Plotly.newPlot('bar-chart', barData, layoutBar);
- 
+
         // 차트를 갱신하는 함수
         function updateCharts() {
             $.ajax({
@@ -93,7 +85,7 @@
                 type: 'GET',
                 success: function(res) {
                     var timestamps = res.timestamps;
- 
+
                     // 캔들스틱 차트를 갱신
                     var ohlcData = {
                         x: [timestamps],
@@ -102,25 +94,25 @@
                         low: [res.low_prices],
                         close: [res.close_prices]
                     };
- 
+
                     Plotly.update('candlestick-chart', ohlcData);
- 
+
                     // 바 차트를 갱신 (Buy/Sell Count & Volume)
                     var buyCount = res.buy_counts.map(Number);
                     var sellCount = res.sell_counts.map(c => -c);  // 음수로 변환
                     var buyVolume = res.buy_volumes.map(Number);
                     var sellVolume = res.sell_volumes.map(v => -v);  // 음수로 변환
- 
+
                     var barUpdate = {
                         x: [timestamps],
                         y: [buyCount, sellCount, buyVolume, sellVolume]
                     };
- 
+
                     Plotly.update('bar-chart', barUpdate);
                 }
             });
         }
- 
+
         // 일정 간격(5초)마다 차트를 갱신
         setInterval(updateCharts, 5000);
     </script>
