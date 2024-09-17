@@ -4,113 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time BTCUSDT Chart</title>
-<script
-    type="text/javascript"
-    src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"
-></script>    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/lightweight-charts@3.7.1/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #chart-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+        }
+        #bar-chart-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+        }
+    </style>
 </head>
 <body>
     <h1>Real-time BTCUSDT Chart</h1>
     
     <!-- 캔들스틱 차트 -->
-    <div id="candlestick-chart" style="width:100%; height:500px;"></div>
+    <div id="chart-container"></div>
     
     <!-- 바 차트 (Buy/Sell Count & Volume) -->
-    <div id="bar-chart" style="width:100%; height:500px;"></div>
+    <div id="bar-chart-container"></div>
 
     <script type="text/javascript">
-        // 캔들스틱 차트 초기화
-        const candlestickChart = LightweightCharts.createChart(document.getElementById('candlestick-chart'), {
-            width: window.innerWidth,
-            height: 500,
-            layout: { backgroundColor: '#ffffff' },
-            crossHair: { mode: 0 }
+        // 차트 초기화
+        var chart = LightweightCharts.createChart(document.getElementById('chart-container'), {
+            width: 800,
+            height: 400,
+            title: 'BTCUSDT Real-Time Candlestick Chart'
         });
 
-        const candlestickSeries = candlestickChart.addCandlestickSeries({
+        var candleSeries = chart.addCandlestickSeries({
             upColor: 'green',
             borderUpColor: 'green',
             wickUpColor: 'green',
-            color: 'red',
+            downColor: 'red',
             borderDownColor: 'red',
-            wickDownColor: 'red',
+            wickDownColor: 'red'
         });
 
         // 바 차트 초기화
-        const barChart = LightweightCharts.createChart(document.getElementById('bar-chart'), {
-            width: window.innerWidth,
-            height: 500,
-            layout: { backgroundColor: '#ffffff' }
+        var barChart = LightweightCharts.createChart(document.getElementById('bar-chart-container'), {
+            width: 800,
+            height: 400,
+            title: 'Buy/Sell Count & Volume'
         });
 
-        const buyVolumeSeries = barChart.addHistogramSeries({
-            color: 'blue',
-            priceLineVisible: false
-        });
+        var buyCountSeries = barChart.addBarSeries({ color: 'green' });
+        var sellCountSeries = barChart.addBarSeries({ color: 'red' });
+        var buyVolumeSeries = barChart.addBarSeries({ color: 'blue' });
+        var sellVolumeSeries = barChart.addBarSeries({ color: 'orange' });
 
-        const sellVolumeSeries = barChart.addHistogramSeries({
-            color: 'orange',
-            priceLineVisible: false
-        });
-
-        const buyCountSeries = barChart.addLineSeries({
-            color: 'green'
-        });
-
-        const sellCountSeries = barChart.addLineSeries({
-            color: 'red'
-        });
-
-        // 차트를 갱신하는 함수
+        // 데이터 업데이트 함수
         function updateCharts() {
             $.ajax({
-                url: '/data',  // Flask API로부터 데이터를 가져옴
+                url: '/data',
                 type: 'GET',
-                dataType: 'json',
                 success: function(res) {
-                    const timestamps = res.timestamps;
-                    const ohlcData = timestamps.map((timestamp, index) => ({
-                        time: timestamp,
-                        open: res.open_prices[index] || 0,
-                        high: res.high_prices[index] || 0,
-                        low: res.low_prices[index] || 0,
-                        close: res.close_prices[index] || 0
+                    var timestamps = res.timestamps.map(ts => new Date(ts).getTime() / 1000);  // Convert to Unix timestamp
+                    var ohlc = res.open_prices.map((_, i) => ({
+                        time: timestamps[i],
+                        open: res.open_prices[i],
+                        high: res.high_prices[i],
+                        low: res.low_prices[i],
+                        close: res.close_prices[i]
                     }));
 
-                    candlestickSeries.setData(ohlcData);
+                    candleSeries.setData(ohlc);
 
                     // 바 차트 데이터 업데이트
-                    buyVolumeSeries.setData(timestamps.map((timestamp, index) => ({
-                        time: timestamp,
-                        value: res.buy_volumes[index] || 0
-                    })));
+                    var buyCount = res.buy_counts.map((count, i) => ({ time: timestamps[i], value: count }));
+                    var sellCount = res.sell_counts.map((count, i) => ({ time: timestamps[i], value: -count }));
+                    var buyVolume = res.buy_volumes.map((volume, i) => ({ time: timestamps[i], value: volume }));
+                    var sellVolume = res.sell_volumes.map((volume, i) => ({ time: timestamps[i], value: -volume }));
 
-                    sellVolumeSeries.setData(timestamps.map((timestamp, index) => ({
-                        time: timestamp,
-                        value: -res.sell_volumes[index] || 0  // 음수로 변환
-                    })));
-
-                    buyCountSeries.setData(timestamps.map((timestamp, index) => ({
-                        time: timestamp,
-                        value: res.buy_counts[index] || 0
-                    })));
-
-                    sellCountSeries.setData(timestamps.map((timestamp, index) => ({
-                        time: timestamp,
-                        value: -res.sell_counts[index] || 0  // 음수로 변환
-                    })));
-                },
-                error: function(err) {
-                    console.error('Error fetching data:', err);
+                    buyCountSeries.setData(buyCount);
+                    sellCountSeries.setData(sellCount);
+                    buyVolumeSeries.setData(buyVolume);
+                    sellVolumeSeries.setData(sellVolume);
                 }
             });
         }
 
         // 일정 간격(5초)마다 차트를 갱신
         setInterval(updateCharts, 5000);
-
-        // 초기 차트 데이터 로딩
-        updateCharts();
     </script>
 </body>
 </html>
