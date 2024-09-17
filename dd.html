@@ -59,19 +59,20 @@
             color: 'red'
         });
 
-        // 차트 데이터 갱신 함수
+        // 차트를 갱신하는 함수
         function updateCharts() {
             $.ajax({
                 url: '/data',  // Flask API로부터 데이터를 가져옴
                 type: 'GET',
+                dataType: 'json',
                 success: function(res) {
                     const timestamps = res.timestamps;
                     const ohlcData = timestamps.map((timestamp, index) => ({
                         time: timestamp,
-                        open: res.open_prices[index],
-                        high: res.high_prices[index],
-                        low: res.low_prices[index],
-                        close: res.close_prices[index]
+                        open: res.open_prices[index] || 0,
+                        high: res.high_prices[index] || 0,
+                        low: res.low_prices[index] || 0,
+                        close: res.close_prices[index] || 0
                     }));
 
                     candlestickSeries.setData(ohlcData);
@@ -79,23 +80,26 @@
                     // 바 차트 데이터 업데이트
                     buyVolumeSeries.setData(timestamps.map((timestamp, index) => ({
                         time: timestamp,
-                        value: res.buy_volumes[index]
+                        value: res.buy_volumes[index] || 0
                     })));
 
                     sellVolumeSeries.setData(timestamps.map((timestamp, index) => ({
                         time: timestamp,
-                        value: -res.sell_volumes[index]  // 음수로 변환
+                        value: -res.sell_volumes[index] || 0  // 음수로 변환
                     })));
 
                     buyCountSeries.setData(timestamps.map((timestamp, index) => ({
                         time: timestamp,
-                        value: res.buy_counts[index]
+                        value: res.buy_counts[index] || 0
                     })));
 
                     sellCountSeries.setData(timestamps.map((timestamp, index) => ({
                         time: timestamp,
-                        value: -res.sell_counts[index]  // 음수로 변환
+                        value: -res.sell_counts[index] || 0  // 음수로 변환
                     })));
+                },
+                error: function(err) {
+                    console.error('Error fetching data:', err);
                 }
             });
         }
